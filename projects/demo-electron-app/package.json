@@ -1,0 +1,58 @@
+{
+    "name": "demoelectronapp",
+    "version": "0.0.1",
+    "description": "Demo Electron App",
+    "main": "app.js",
+    "scripts": {
+      "start": "electron .",
+      "pack": "electron-builder --dir",
+      "dist": "electron-builder"
+    },
+    "build": {
+      "appId": "com.thenebulo.demoelectronapp",
+      "productName": "Demo Electron App",
+      "copyright": "Copyright © 2024 Amir Djaffar (TheNebulo)",
+      "directories": {
+        "output": "dist"
+      },
+      "generateUpdatesFilesForAllChannels": true,
+      "dmg": {
+        "background": null,
+        "backgroundColor": "#ffffff",
+        "window": {
+          "width": 400,
+          "height": 300
+        },
+        "contents": [
+          {
+            "x": 100,
+            "y": 100
+          },
+          {
+            "x": 300,
+            "y": 100,
+            "type": "link",
+            "path": "/Applications"
+          }
+        ]
+      },
+      "mac": {
+        "target": "dmg"
+      },
+      "win": {
+        "target": "nsis"
+      },
+      "linux": {
+        "target": "AppImage",
+        "category": "Utility"
+      }
+    },
+    "author": "Amir Djaffar (TheNebulo)",
+    "license": "ISC",
+    "devDependencies": {
+      "electron": "^30.1.0",
+      "electron-builder": "^24.13.3"
+    },
+    "dependencies": {
+    }
+  }

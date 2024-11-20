@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPC Callback Console</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+        :root {
+            --primary-color: #333;
+            --secondary-color: #888;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Poppins", sans-serif;
+            font-weight: 400;
+            letter-spacing: -0.25px;
+            word-spacing: -0.25px;
+            background-color: black;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: var(--secondary-color);
+            padding: 15px;
+            text-align: center;
+            font-size: 22px;
+            color: white;
+            font-weight: 600;
+        }
+
+        #output {
+            flex-grow: 1;
+            background-color: black;
+            color: white;
+            padding: 15px;
+            overflow-y: auto;
+            border-bottom: 1px solid var(--secondary-color);
+        }
+
+        #console {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            background-color: black;
+            border-top: 2px solid var(--primary-color);
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: white;
+        }
+
+        select, input {
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #555;
+            background-color: #252526;
+            color: white;
+            margin-bottom: 15px;
+            width: 100%;
+            outline: none;
+        }
+
+        #arguments-list div {
+            padding: 5px 0;
+        }
+
+        button {
+            background-color: #444;
+            border: none;
+            padding: 10px;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background-color: green;
+        }
+
+        #clear:hover {
+            background-color: red;
+        }
+
+        #add-argument {
+            background-color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        #add-argument:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .button-row {
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <header>IPC Callback Console</header>
+    <div id="output"></div>
+    <div id="console">
+        <div class="form-row">
+            <label for="ipc-mode">Mode:</label>
+            <select id="ipc-mode">
+                <option value="ipcMain">Send to ipcMain</option>
+                <option value="ipcRenderer">Send to ipcRenderer</option>
+            </select>
+        </div>
+        <div class="form-row">
+            <label for="ipc-invoke">Message Type:</label>
+            <select id="ipc-invoke">
+                <option value="send">Send</option>
+                <option value="invoke">Invoke (Only for ipcMain)</option>
+            </select>
+        </div>
+        <div class="form-row">
+            <label for="channel">Channel:</label>
+            <input type="text" id="channel" placeholder="Enter channel name" />
+        </div>
+        <div class="form-row">
+            <label for="arg-value">Argument Value:</label>
+            <input type="text" id="arg-value" placeholder="Enter argument value (e.g. string, number, or object)" />
+        </div>
+        <div id="arguments-list"></div>
+        <button id="add-argument">Add Argument</button>
+        <div class="button-row">
+            <button id="send">Send</button>
+            <button id="clear">Clear Console</button>
+        </div>
+    </div>
+</body>
+</html>
