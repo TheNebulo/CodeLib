@@ -1,11 +1,11 @@
 using Steamworks;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 using System.Linq;
 using DiscordPresence;
 using DavidFDev.DevConsole;
 using Party = Steamworks.Data.Lobby;
-using System;
 
 public class SteamManager : MonoBehaviour
 {
@@ -18,12 +18,11 @@ public class SteamManager : MonoBehaviour
     private int privacy; // In accordance with Steamworks API, 0 = Private, 1 = FriendsOnly, 2 = Public, 3 = Invisible (Unused). More info here: https://partner.steamgames.com/doc/api/ISteamMatchmaking#ELobbyType
 
     // Events
-    public static event Action<Party?> OnPartyUiUpdate;
+    public static event Action<Party> OnPartyUpdate;
     public static event Action<string, float, Party?> OnPartyNotification;
     public static event Action<Friend, string> OnPartyChatMessage;
 
     // Misc
-    private PresenceManager discordRPCManager;
     private System.Random random;
     private bool recentlyKicked = false;
 
@@ -36,9 +35,6 @@ public class SteamManager : MonoBehaviour
     void OnEnable()
     {
         DontDestroyOnLoad(gameObject);
-
-        random = new System.Random();
-        discordRPCManager = FindObjectOfType<PresenceManager>();
 
         // Adding Steam Matchmaking callbacks
         SteamMatchmaking.OnLobbyCreated += PartyCreated;
@@ -54,6 +50,7 @@ public class SteamManager : MonoBehaviour
 
         SetupDevCommands();
 
+        random = new System.Random();
         privacy = 1; // FriendsOnly (default)
         HostParty();
     }
@@ -75,18 +72,16 @@ public class SteamManager : MonoBehaviour
 
     #region Utility Functions
 
-    private GameObject GetUiObject(string key)
-    {
-        return FindObjectOfType<UIReferencer>().GetUIObject(key);
-    }
-
     private void SetupDevCommands()
     {
         DevConsole.AddCommand(Command.Create(
-            name: "reloadPartyUi",
+            name: "triggerPartyUpdateCallback",
             aliases: "",
-            helpText: "Reload all UI displaying party info",
-            callback: () => reloadPartyUi(null)
+            helpText: "Trigger the callback for a party update to reload dependent systems such as UI",
+            callback: () => { 
+                OnPartyUpdate?.Invoke(currentParty);
+                DevConsole.Log("[SteamManager] Triggered party update callback");
+            }
         ));
 
         DevConsole.AddCommand(Command.Create<ulong>(
@@ -234,16 +229,6 @@ public class SteamManager : MonoBehaviour
         ));
     }
 
-    private void reloadPartyUi(Party? party)
-    {
-        if (party == null) party = currentParty;
-
-        OnPartyUiUpdate?.Invoke(party);
-        UpdateDiscordRPC(party.Value); // Discord presence management shouldn't happen here?
-
-        DevConsole.Log("[SteamManager] Reloaded all party UI");
-    }
-
     private void Notify(string message, float duration, Party? party = null)
     {
         OnPartyNotification?.Invoke(message, duration, party);
@@ -288,20 +273,8 @@ public class SteamManager : MonoBehaviour
         {
             DevConsole.Log($"[SteamManager] {party.Owner.Name} has been promoted to party leader");
             Notify($"{party.Owner.Name} has been promoted to party leader!", 3f);
-            reloadPartyUi(party);
+            OnPartyUpdate?.Invoke(party);
         }
-    }
-
-    private void UpdateDiscordRPC(Party party)
-    {
-        if (party.MemberCount > 2)
-            discordRPCManager.presence.state = $"In party with other {party.MemberCount - 1} players";
-        else if (party.MemberCount == 2)
-            discordRPCManager.presence.state = "In party with other 1 player";
-        else
-            discordRPCManager.presence.state = "Currently in party alone";
-
-        DiscordRpc.UpdatePresence(discordRPCManager.presence);
     }
 
     public void CopyPartyId()
@@ -338,9 +311,9 @@ public class SteamManager : MonoBehaviour
         if (!party.Owner.IsMe)
             Notify($"Entered {party.Owner.Name}'s party", 2f);
 
-        reloadPartyUi(party);
+        OnPartyUpdate?.Invoke(party);
 
-        if(int.TryParse(party.GetData("privacy"), out int privacySetting))
+        if (int.TryParse(party.GetData("privacy"), out int privacySetting))
         {
             if (privacy == privacySetting) return;
 
@@ -368,7 +341,7 @@ public class SteamManager : MonoBehaviour
     {
         DevConsole.Log($"[SteamManager] {friend.Name} ({friend.Id}) joined the party");
         Notify($"{friend.Name} joined the party", 2f);
-        reloadPartyUi(party);
+        OnPartyUpdate?.Invoke(party);
     }
 
     private void UserLeftParty(Party party, Friend friend)
@@ -383,19 +356,20 @@ public class SteamManager : MonoBehaviour
             DevConsole.Log($"[SteamManager] {friend.Name} ({friend.Id}) left the party");
             Notify($"{friend.Name} left the party", 2f); 
         }
-        reloadPartyUi(party);
+        OnPartyUpdate?.Invoke(party);
     }
 
     private void UserDisconnectedFromParty(Party party, Friend friend)
     {
         DevConsole.Log($"[SteamManager] {friend.Name} ({friend.Id}) has disconnected from the party");
         Notify($"{friend.Name} disconnected the party", 2f);
-        reloadPartyUi(party);
+        OnPartyUpdate?.Invoke(party);
     }
 
     private void PartyUserDataChanged(Party party, Friend friend)
     {
-        reloadPartyUi(party);
+        DevConsole.Log($"[SteamManager] {friend.Name} ({friend.Id}) changed their user data");
+        OnPartyUpdate?.Invoke(party);
     }
 
     private async void PartyJoinRequested(Party party, SteamId steamId)
@@ -446,6 +420,8 @@ public class SteamManager : MonoBehaviour
                     Notify("Party is now public. Anyone can join your party.", 4f);
                     break;
             }
+
+            OnPartyUpdate?.Invoke(party);
         }
     }
 
