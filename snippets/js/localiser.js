@@ -1,56 +1,10 @@
-/*
-REQUIRED APP.JS SETUP: (RELIANT ON FILE MANAGER)
-
-// Localisation setup
-let localisationStrings = {};
-
-fm.getAllJsons(fm.getPathInAppDir("/resources/locales/")).forEach(([fileName, jsonPath]) => {
-    localeContent = fm.readJson(jsonPath);
-    for (const [key, value] of Object.entries(localeContent)) {
-        if (!(key in localisationStrings)) localisationStrings[key] = {};
-        localisationStrings[key][fileName.split(".")[0]] = value;
-    }
-});
-
-ipcMain.handle('get-localisation-strings', () => { return localisationStrings; });
-
-// Upon DOM init, an ipcMain event should be sent on channel 'localise' containing the current language code like so:
-ipcMain.send('localise', 'en');
-
-// It is highly reccomended that windows are reloaded upon language change as HTML will not relocalise without reload.
-// Locale files in this example are kept like so:
-
-// resources
-// -> locales
-//    -> en.json
-//    -> ru.json
-//    -> languageCode.json
-
-// JSON files are structured like so:
-
-// { "tag1" : "localTranslation1", "tag2" : "localTranslation2" }
-
-*/
-
-
-
-/*
-REQUIRED FRONTEND SETUP AND USAGE NOTES:
-require("../src/frontend/localiser");
-
 // DOM nodes that need localising can place locale tags in the following syntax: [!:tag{var1}{var2}]
 // The localiser module will automatically localise the DOM upon all changes
-*/
 
-const { ipcRenderer } = require('electron');
-
-let localisationStrings = {};
-let lang = 'en';
+let localisationStrings = JSON.parse(atob(document.querySelector('#locale-b64').content)); // Change as you will
 let observer = null;
 
-ipcRenderer.invoke('get-localisation-strings').then((data) => { localisationStrings = data; });
-
-exports.getLocalString = function (tag, variables = []) {
+function getLocalString(tag, variables = []) {
     tag = String(tag);
 
     if (!(tag in localisationStrings)) {
@@ -59,7 +13,7 @@ exports.getLocalString = function (tag, variables = []) {
         return `[!:${tag}${variablesString}]`;
     }
 
-    let localisedString = localisationStrings[tag][lang] || localisationStrings[tag].en;
+    let localisedString = localisationStrings[tag];
 
     variables.forEach((value, index) => {
         localisedString = localisedString.replace(new RegExp(`\\{${index + 1}\\}`, 'g'), value);
@@ -96,7 +50,7 @@ function localiseNode(node) {
         if (rawVariables) {
             rawVariables.match(/\{(.*?)\}/g)?.forEach((varString) => {
                 const value = varString.slice(1, -1);
-                variables.push(value);
+                variables.push(value.trim());
             });
         }
 
@@ -114,7 +68,7 @@ function localiseNode(node) {
 
             let { tag, variables } = data;
             
-            const localString = exports.getLocalString(tag, variables);
+            const localString = getLocalString(tag, variables);
             node.nodeValue = node.nodeValue.replace(match, localString);
         });
     }
@@ -133,7 +87,7 @@ function localiseNode(node) {
 
                     let { tag, variables } = data;
                     
-                    const localString = exports.getLocalString(tag, variables);
+                    const localString = getLocalString(tag, variables);
                     node.setAttribute(attr.name, node.getAttribute(attr.name).replace(match, localString));
                 });
             }
@@ -155,17 +109,8 @@ function localiseNode(node) {
     });
 }
 
-exports.localiseHtml = function () {
-    localiseNode(document.body);
-};
-
-document.addEventListener('DOMContentLoaded', () => {
-    observer = new MutationObserver((mutationsList) => {
-        for (const mutation of mutationsList) { localiseNode(mutation.target); }
-    });
-
-    ipcRenderer.on('localise', (event, newLang) => {
-        if (newLang) lang = newLang;
-        exports.localiseHtml();
-    });
+observer = new MutationObserver((mutationsList) => {
+    for (const mutation of mutationsList) { localiseNode(mutation.target); }
 });
+
+localiseNode(document.body);

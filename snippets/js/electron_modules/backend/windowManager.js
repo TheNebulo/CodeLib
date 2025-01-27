@@ -88,8 +88,10 @@ exports.openWindowPreset = function (presetName, additionalCallback) {
     createWindow(presetName, wp.width, wp.height, () => {
         let { domCallbacks, asyncTask } = exports.onWindowPresetOpened(presetName);
         
-        for (const [channel, value] of Object.entries(domCallbacks)) {
-            exports.sendMessage(channel, value);
+        if (domCallbacks) { 
+            for (const [channel, value] of Object.entries(domCallbacks)) {
+                exports.sendMessage(channel, value);
+            }
         }
 
         if (asyncTask) {
@@ -113,8 +115,10 @@ exports.openPopoutWindowPreset = function (presetName, additionalCallback) {
     createPopoutWindow(presetName, wp.width, wp.height, wp.persistent, () => {
         let { domCallbacks, asyncTask } = exports.onPopoutWindowPresetOpened(presetName);
 
-        for (const [channel, value] of Object.entries(domCallbacks)) {
-            exports.sendPopoutMessage(presetName, channel, value);
+        if (domCallbacks) { 
+            for (const [channel, value] of Object.entries(domCallbacks)) {
+                exports.sendPopoutMessage(presetName, channel, value);
+            }
         }
 
         if (asyncTask) {
@@ -228,7 +232,7 @@ exports.sendPopoutMessage = (presetName, channel, ...args) => {
 }
 
 exports.sendNotification = function (title, description, length) {
-    exports.sendMessage('notification', title, description, length); // Assumes existence of notification module
+    exports.sendMessage('notification', title, description, length);
 }
 
 exports.showMainWindow = () => { mainWindow.show(); }

@@ -16,6 +16,7 @@ Feel free to copy and paste any files here into your own projects freely, no lic
 - `json_config.py` - A config loader using a specific JSON config convention of mine.
 - `phone_number_formatting.py` - Name speaks for itself, checks formatting of phone number strings.
 - `regex.py` - A collection of useful regex check functions.
+- `renderer.py` - A test script for rendering a window using raw Win32 API calls.
 
 ### Python (Flask)
 
@@ -25,7 +26,9 @@ Feel free to copy and paste any files here into your own projects freely, no lic
 
 ### JavaScript (Vanilla)
 
-- `aspectRatio.py` - A weird implementation of applying different CSS files based on screen aspect ratios to make better use of viewport units.
+- `aspectRatio.js` - A weird implementation of applying different CSS files based on screen aspect ratios to make better use of viewport units.
+
+- `localiser.js` - A frontend script that adds a localisation system to your electron projects, that is flexible and extensive, and backend independent.
 
 ### JavaScript (Electron.js Pages)
 
@@ -39,13 +42,17 @@ Feel free to copy and paste any files here into your own projects freely, no lic
 
 - `windowManager.js` - An extensive backend module that makes window creation and management in electron super easy using pre-defined window presets and a ton of customisable callback events, making window behaviour predictable and controlled.
 
-- `localiser.js` - A frontend module (with required backend integration) that adds a localisation system to your electron projects, that is flexible and extensive, on both the HTML and JavaScript front,
+- `localiser.js` - A frontend module (with required backend integration) that adds a localisation system to your electron projects, that is flexible and extensive, on both the HTML and JavaScript front.
 
 - `modal.js` - A frontend module for injecting modal UI and managing it's activation and output through simple one-line callback events to avoid redundancy. Actual modal UI needs to be update per-project.
 
 - `notification.js` - A frontend module for injecting notification UI and easily calling notification on the page through simple one-line callback events to avoid redundancy. Actual modal UI needs to be update per-project.
 
 - `fileManager.js` - A runtime-less module that can be imported anywhere throughout the project to streamline usecases of the fs module, such as reading AppData and reading/writing JSON files.
+
+### C# (Unity)
+
+- `SteamManager.cs` - An interface for the Steamworks API using Facepunch and DavidFDev's Dev Cosnole
 
 ## Available Projects
 

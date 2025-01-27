@@ -8,4 +8,4 @@ Code within folders require a certain framework such as `Flask`, and hence are d
 
 Docstrings are ideally present on any complicated functions.
 
-> Each code will require it's modules that can be found at the top of the file.
+> Each snippet will require it's modules that can be found at the top of the file.
