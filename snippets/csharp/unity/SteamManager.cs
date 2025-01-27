@@ -13,8 +13,8 @@ public class SteamManager : MonoBehaviour
 
     // Party Setup
     public Party currentParty;
-    public int maximumPlayerCount;
-    private string gameId = "voyage";
+    public int maximumPlayerCount = 4;
+    public string gameId = "myGameId";
     private int privacy; // In accordance with Steamworks API, 0 = Private, 1 = FriendsOnly, 2 = Public, 3 = Invisible (Unused). More info here: https://partner.steamgames.com/doc/api/ISteamMatchmaking#ELobbyType
 
     // Events
